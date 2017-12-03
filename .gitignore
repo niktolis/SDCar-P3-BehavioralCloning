@@ -1,2 +1,9 @@
 data
 windows_sim
+mydata
+mydataTrack1
+mydataTrack2
+track2_video
+track1_video
+model-*
+__pycache__
