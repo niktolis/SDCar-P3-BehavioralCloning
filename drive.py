@@ -5,6 +5,7 @@ import os
 import shutil
 
 import numpy as np
+import cv2
 import socketio
 import eventlet
 import eventlet.wsgi
@@ -16,35 +17,41 @@ from keras.models import load_model
 import h5py
 from keras import __version__ as keras_version
 
+
 sio = socketio.Server()
 app = Flask(__name__)
 model = None
 prev_image_array = None
-
 
 class SimplePIController:
     def __init__(self, Kp, Ki):
         self.Kp = Kp
         self.Ki = Ki
         self.set_point = 0.
+        self.speedHist = 0.
         self.error = 0.
         self.integral = 0.
+        #PT1 Filter Coefficient
+        self.filterCoeff = 0.008
 
     def set_desired(self, desired):
+
         self.set_point = desired
 
     def update(self, measurement):
+        #PT1 Filter for smoother acceleration/deceleration
+        self.speedHist = self.filterCoeff * self.set_point + (1 - self.filterCoeff) * self.speedHist
         # proportional error
-        self.error = self.set_point - measurement
-
+        self.error = self.speedHist - measurement
+        #self.error = self.set_point - measurement
         # integral error
         self.integral += self.error
 
         return self.Kp * self.error + self.Ki * self.integral
 
 
-controller = SimplePIController(0.1, 0.002)
-set_speed = 9
+controller = SimplePIController(0.2, 0.008)
+set_speed = 20.0
 controller.set_desired(set_speed)
 
 
@@ -61,6 +68,10 @@ def telemetry(sid, data):
         imgString = data["image"]
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = np.asarray(image)
+        #The color change of the image was done in preprocessing stage
+        #so it must be taken into account while the model is running
+        #for correct predictions
+        image_array = cv2.cvtColor(image_array, cv2.COLOR_RGB2YUV)
         steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
 
         throttle = controller.update(float(speed))
