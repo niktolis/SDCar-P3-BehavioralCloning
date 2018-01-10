@@ -7,3 +7,6 @@ track2_video
 track1_video
 model-*
 __pycache__
+.DS_Store
+Figures/.DS_Store
+
