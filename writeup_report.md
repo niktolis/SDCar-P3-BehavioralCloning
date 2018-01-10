@@ -143,11 +143,13 @@ The final model architecture (model.py lines 18-24) consisted of a convolution n
 
 #### 3. Creation of the Training Set & Training Process
 
-To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving from the first track:
+To capture good driving behavior, I first recorded two laps on track one using center lane driving for 3 runs. One with fast speed but a little bit more careless on the corners one slower with using brake on corners for smoother steering and one run only recording the corners. Here is an example image of center lane driving from the first track:
 
 ![alt text][image4]
 
-And from the second track driving on the center of right lane:
+Same approach I used also for the second track. I did 3 runs at first but I was driving on the center of the road. In order to make the project a bit more challenging a later replaced this data with driving only on the right lane. This gave an extra problem to try and recover if there was a sudden change of lanes.
+
+From the second track driving on the center of right lane:
 
 ![alt text][image5]
 
@@ -163,18 +165,20 @@ And from a right curve:
 ![alt text][image10]
 ![alt text][image11]
 
-Then I repeated this process on track two in order to get more data points.
+Then I repeated this process on track two in order to get more data points I also had some recovery runs from the left back to the right lane.
 
-To augment the data sat, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
+To augment the dataset, I decided to flip all the left and right images included on the training dataset since I was driving the tracks only one direction and I wanted to remove the bias on the model depending on the direction of the track, especially the first one which has only clockwise turns. Here is an example of flipping.
 
-![alt text][image15]
-![alt text][image16]
+![alt text][image12]
+![alt text][image13]
 
-Etc ....
+During flipping I also get the opposite of the steering measurement. I use as additional input on training the left and right images applying a correction which was tuned during the training process.
 
-After the collection process, I had X number of data points. I then preprocessed this data by ...
+After the collection process, I had **16820** number of data points before the augmentation. After they were shuffled they were split to:
 
+* **75%** on training dataset resulting in 12615 data points.
+* **25%** on validation dataset resulting in 4205 data points.
 
-I finally randomly shuffled the data set and put Y% of the data into a validation set.
+After that the training generator was implemented in order to augment the data by taking into account the left and right images and also flipping them and applying the opposite of the measurement. In each batch iteration the batches were reshuffled so the model is trained without getting biased by the sequence of images.
 
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
+A few things needed extra care as the model worked well from the start especially for the first track. To tackle some problems I decided to switch colorspace to YUV and this helped the model on the simulation to pass the difficult parts e.g. the stone bridge and the corners near the lake. After it successfully finished the first track I proceeded to the second track which also was completed. Lastly I tried to increase the speed of the car and also I tuned it to be a little smoother by adding a low pass filter on the speed controller in drive.py (lines 26-55).
