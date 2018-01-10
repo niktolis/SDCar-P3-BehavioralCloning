@@ -104,6 +104,8 @@ from keras import backend as K
 from keras.callbacks import ModelCheckpoint
 from test import get_activations, compare_images
 
+
+
 # Similar to NVIDIA model
 model = Sequential()
 # Cropping and resizing the images to reduce processing
@@ -132,6 +134,7 @@ checkpoint = ModelCheckpoint('model-{epoch:03d}.h5', monitor='val_loss',
 
 # Loss function is MSE and optimizer is ADAM
 model.compile(loss='mse', optimizer='adam')
+
 
 # Create the fit generator. Length of train samples is *6 because we have for each
 # center image 2 additional (1 right and 1 left) and all of them are flipped
