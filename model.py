@@ -19,7 +19,6 @@ with open('./mydata/driving_log.csv') as csvfile:
 # included in the project in order to remove the header.
 # On the data created with the simulation later it was needed as the
 # header is not appended by default.
-
 #samples.pop(0)
 
 # Split the train and validation samples to 75% and 25%
